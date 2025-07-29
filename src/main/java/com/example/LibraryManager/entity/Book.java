@@ -19,6 +19,8 @@ public class Book {
     String bookAuthor;           // Tác giả
     String bookPublish;          // Nhà xuất bản
     Double bookPrice;            // Giá sách
+    Integer bookQuantity;        // Số lượng sách hiện có
+    String bookCode;
     String bookIntroduction;     // Giới thiệu sơ lược về sách
     @ManyToOne
     @JoinColumn(name = "book_category")

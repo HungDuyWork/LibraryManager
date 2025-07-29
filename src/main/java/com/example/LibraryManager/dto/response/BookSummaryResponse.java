@@ -12,4 +12,7 @@ public class BookSummaryResponse {
     String bookName;             // Tên sách
     String bookAuthor;           // Tác giả
     Double bookPrice;            // Giá sách
+    String bookCode;            // Mã sách
+    Integer bookQuantity;        // Số lượng sách hiện có
+
 }

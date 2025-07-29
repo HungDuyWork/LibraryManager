@@ -16,6 +16,8 @@ public class BookResponse {
     String bookAuthor;           // Tác giả
     String bookPublish;          // Nhà xuất bản
     Double bookPrice;            // Giá sách
+    Integer bookQuantity;        // Số lượng sách hiện có
+    String bookCode;             // Mã sách
     String bookIntroduction;     // Giới thiệu sơ lược về sách
     BookCategory bookCategory;   // Thể loại sách (liên kết khóa ngoại đến bảng category)
 

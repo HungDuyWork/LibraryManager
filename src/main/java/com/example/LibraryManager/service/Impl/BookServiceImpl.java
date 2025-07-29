@@ -31,9 +31,13 @@ public class BookServiceImpl implements BookService {
     @Override
     public BookResponse createBook(BookCreationRequest request) {
         Book book = bookMapper.toBook(request);
+        if(bookRepository.existsByBookCode(book.getBookCode())) {
+            throw new RuntimeException("Book with code " + book.getBookCode() + " already exists.");
+        }
         BookCategory bookCategory = bookCategoryRepository.findById(request.getBookCategoryId())
                 .orElseThrow(() -> new RuntimeException("Book category not found with id: "));
         book.setBookCategory(bookCategory);
+
         bookRepository.save(book);
         return bookMapper.toBookResponse(book);
     }
@@ -43,12 +47,21 @@ public class BookServiceImpl implements BookService {
         BookCategory bookCategory = bookMapper.toBookCategory(request);
         return bookCategoryRepository.save(bookCategory);
     }
+
+
     // 3. Hiển thị sách theo thể loại
     @Override
-    public List<BookSummaryResponse> getBooksByCategory(Integer categoryId) {
-        List<Book> book = bookCategoryRepository.findBooksByCategoryId(categoryId.longValue());
-        return bookMapper.toBookSummaryResponses(book);
+    public List<BookSummaryResponse> getBooksByCategoryName(String categoryName) {
+        BookCategory category = bookCategoryRepository.findByCategoryName(categoryName);
+        if (category == null) {
+            throw new RuntimeException("Không tìm thấy thể loại: " + categoryName);
+        }
+        List<Book> books = bookRepository.findBookByBookCategory(category);
+
+        // Map sang DTO
+        return bookMapper.toBookSummaryResponses(books);
     }
+
 
     @Override
     public List<BookCategoryResponse> getAllBookCategories() {
@@ -57,24 +70,30 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public void deleteBook(Long bookId) {
-        Book book = bookRepository.findById(bookId)
-                .orElseThrow(() -> new RuntimeException("Book not found with id: " + bookId));
+    public void deleteBook(String bookCode) {
+        Book book = bookRepository.findByBookCode(bookCode);
+        if (book == null) {
+            throw new RuntimeException("Book not found with code: " + bookCode);
+        }
         bookRepository.delete(book);
     }
 
     @Override
-    public void deleteBookCategory(Long categoryId) {
-        BookCategory bookCategory = bookCategoryRepository.findById(categoryId)
-                .orElseThrow(() -> new RuntimeException("Book category not found with id: " + categoryId));
-        bookRepository.deleteBooksByCategoryId(categoryId);
+    public void deleteBookCategory(String categoryName) {
+        BookCategory bookCategory = bookCategoryRepository.findByCategoryName(categoryName);
+        if (bookCategory == null) {
+            throw new RuntimeException("Book category not found with name: " + categoryName);
+        }
+        bookRepository.deleteBooksByCategoryId(bookCategory.getCategoryId());
         bookCategoryRepository.delete(bookCategory);
     }
 
     @Override
-    public BookResponse updateBook(Long bookId, BookCreationRequest request) {
-        Book book = bookRepository.findById(bookId)
-                .orElseThrow(() -> new RuntimeException("Book not found with id: " + bookId));
+    public BookResponse updateBook(String bookCode, BookCreationRequest request) {
+        Book book = bookRepository.findByBookCode(bookCode);
+        if (book == null) {
+            throw new RuntimeException("Book not found with code: " + bookCode);
+        }
         BookCategory bookCategory = bookCategoryRepository.findById(request.getBookCategoryId())
                 .orElseThrow(() -> new RuntimeException("Book category not found with id: " + request.getBookCategoryId()));
         bookMapper.updateBookFromRequest(request, book);
@@ -84,11 +103,37 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public BookCategoryResponse updateBookCategory(Long categoryId, BookCategoryRequest request) {
-        BookCategory category = bookCategoryRepository.findById(categoryId)
-                .orElseThrow(() -> new RuntimeException("Book category not found with id: " + categoryId));
+    public BookCategoryResponse updateBookCategory(String categoryName, BookCategoryRequest request) {
+        BookCategory category = bookCategoryRepository.findByCategoryName(categoryName);
         category.setCategoryName(request.getCategoryName());
         bookCategoryRepository.save(category);
         return bookCategoryMapper.toBookCategoryResponse(category);
+    }
+
+    @Override
+    public BookResponse getBookByCode(String bookCode) {
+        Book book = bookRepository.findByBookCode(bookCode);
+        if(book == null) {
+            throw new RuntimeException("Book not found with code: " + bookCode);
+        }
+        return bookMapper.toBookResponse(book);
+    }
+
+    @Override
+    public BookSummaryResponse getBooksByName(String bookName) {
+        Book book = bookRepository.findByBookName(bookName);
+        if (book == null) {
+            throw new RuntimeException("Book not found with name: " + bookName);
+        }
+        return bookMapper.toBookCategoryResponse(book);
+    }
+
+    @Override
+    public List<BookSummaryResponse> getBooksByAuthor(String bookAuthor) {
+        List<Book> book_author = bookRepository.findByBookAuthor(bookAuthor);
+        if (book_author.isEmpty()) {
+            throw new RuntimeException("No books found by author: " + bookAuthor);
+        }
+        return bookMapper.toBookSummaryResponses(book_author);
     }
 }

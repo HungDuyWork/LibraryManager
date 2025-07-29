@@ -20,11 +20,11 @@ public class BorrowingBooks {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    User user;             // Người mượn sách (liên kết đến bảng user)
+    User user;             // Người mượn sách
 
     @ManyToOne
     @JoinColumn(name = "book_id")
-    Book book;             // Sách được mượn (liên kết đến bảng book)
+    Book book;             // Sách được mượn
 
     LocalDate date;        // Ngày mượn sách
 }

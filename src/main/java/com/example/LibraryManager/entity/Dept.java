@@ -1,5 +1,6 @@
 package com.example.LibraryManager.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -19,5 +20,6 @@ public class Dept {
     Long deptId;      // Id của khoa hoặc viện
     String deptName;  // Tên của khoa/vien (ví dụ: Khoa CNTT, Điện tử, Thể thao...)
     @OneToMany(mappedBy = "dept")
+    @JsonIgnore
     List<User> users; // Danh sách người dùng trong khoa này
 }

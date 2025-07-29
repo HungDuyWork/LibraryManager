@@ -21,4 +21,5 @@ public interface BookMapper {
     List<BookCategoryResponse> toBookCategoryResponses(List<BookCategory> bookCategories);
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateBookFromRequest(BookCreationRequest request, @MappingTarget Book book);
+    BookSummaryResponse toBookCategoryResponse(Book book);
 }
